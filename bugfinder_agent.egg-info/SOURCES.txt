@@ -1,0 +1,15 @@
+README.md
+pyproject.toml
+bugfinder/__init__.py
+bugfinder/__main__.py
+bugfinder/cli.py
+bugfinder/config.py
+bugfinder/github.py
+bugfinder/providers.py
+bugfinder/scanner.py
+bugfinder_agent.egg-info/PKG-INFO
+bugfinder_agent.egg-info/SOURCES.txt
+bugfinder_agent.egg-info/dependency_links.txt
+bugfinder_agent.egg-info/entry_points.txt
+bugfinder_agent.egg-info/top_level.txt
+tests/test_scanner.py

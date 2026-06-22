@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Open Source"
+  short_description: "Find contributions and audit repositories safely"
+  default_prompt: "Find a suitable open-source contribution or perform a defensive security audit, then produce evidence-backed next steps."

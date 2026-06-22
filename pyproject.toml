@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bugfinder-agent"
+version = "0.1.0"
+description = "Defensive open-source contribution and security review agent"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+bugfinder = "bugfinder.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["bugfinder*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
