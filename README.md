@@ -53,4 +53,4 @@ GitHub discovery uses the public API and optionally `GITHUB_TOKEN` for a higher 
 
 For an intentional match, add `# bugfinder: ignore` on that source line after manually verifying it. This suppression is deliberately visible in review.
 
-The reusable agent workflow lives in [skills/audit-open-source/SKILL.md](skills/audit-open-source/SKILL.md).
+
