@@ -5,7 +5,14 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-PLACEHOLDER_KEYS = {"", "your_api_key_here", "paste_your_key_here", "..."}
+PLACEHOLDER_KEYS = {
+    "",
+    "your_api_key_here",
+    "paste_your_key_here",
+    "...",
+    "your_openrouter_api_key_here",
+    "your_xai_api_key_here",
+}
 
 
 def read_dotenv(path: Path = Path(".env")) -> dict[str, str]:
@@ -17,9 +24,30 @@ def read_dotenv(path: Path = Path(".env")) -> dict[str, str]:
         if not line or line.startswith("#") or "=" not in line:
             continue
         key, value = line.split("=", 1)
-        key, value = key.strip(), value.strip().strip("'\"")
+        key, value = key.strip(), value.strip()
+        # Support `export KEY=value` lines.
+        if key.lower().startswith("export "):
+            key = key[7:].strip()
+        # Strip a trailing inline comment (`KEY=value # comment`).
+        # Only treated as a comment when preceded by whitespace to avoid
+        # breaking values containing `#`.
+        if " #" in value:
+            value = value.split(" #", 1)[0].rstrip()
+        value = value.strip("'\"")
         values[key] = value
     return values
+
+
+def _parse_max_file_bytes(raw: str) -> int:
+    try:
+        value = int(raw.strip())
+    except ValueError as exc:
+        raise ValueError(
+            f"BUGFINDER_MAX_FILE_BYTES must be an integer, got {raw!r}"
+        ) from exc
+    if value < 0:
+        raise ValueError("BUGFINDER_MAX_FILE_BYTES must not be negative")
+    return value
 
 
 @dataclass(frozen=True)
@@ -66,7 +94,7 @@ class Settings:
             model=provider_setting("BUGFINDER_MODEL", default_model).strip(),
             base_url=provider_setting("BUGFINDER_BASE_URL", default_url).rstrip("/"),
             github_token=configured("GITHUB_TOKEN").strip(),
-            max_file_bytes=int(configured("BUGFINDER_MAX_FILE_BYTES", "200000")),
+            max_file_bytes=_parse_max_file_bytes(configured("BUGFINDER_MAX_FILE_BYTES", "200000")),
         )
 
     @property
@@ -81,3 +109,7 @@ class Settings:
                 "BUGFINDER_API_KEY is still a placeholder. Open .env, replace "
                 "'your_api_key_here' with your real provider key, and retry."
             )
+        if not self.model:
+            raise ValueError("BUGFINDER_MODEL is empty. Set a model for the selected provider.")
+        if not self.base_url:
+            raise ValueError("BUGFINDER_BASE_URL is empty. Set the provider API base URL.")

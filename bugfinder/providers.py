@@ -44,6 +44,9 @@ class LLMClient:
         except urllib.error.URLError as exc:
             raise RuntimeError(f"Could not reach provider: {exc.reason}") from exc
         try:
-            return payload["choices"][0]["message"]["content"]
+            content = payload["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:
             raise RuntimeError("Provider returned an unexpected response") from exc
+        if not isinstance(content, str) or not content:
+            raise RuntimeError("Provider returned an empty response")
+        return content

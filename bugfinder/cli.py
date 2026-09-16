@@ -36,9 +36,14 @@ def parser() -> argparse.ArgumentParser:
 
 
 def llm_audit(root: Path, settings: Settings) -> str:
+    from itertools import islice
+
     excerpts = []
-    for path in list(source_files(root, settings.max_file_bytes))[:20]:
-        text = path.read_text(encoding="utf-8", errors="replace")[:8000]
+    for path in islice(source_files(root, settings.max_file_bytes), 20):
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")[:8000]
+        except OSError:
+            continue
         excerpts.append(f"\n--- {path.relative_to(root)} ---\n{text}")
     if not excerpts:
         return "No supported source files were available for model review."
@@ -118,7 +123,7 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 print(response)
         return 0
-    except (ValueError, RuntimeError, OSError, urllib.error.URLError) as exc:
+    except (ValueError, RuntimeError, OSError, urllib.error.URLError, KeyError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 
