@@ -9,6 +9,9 @@ description = "Defensive open-source contribution and security review agent"
 requires-python = ">=3.10"
 dependencies = []
 
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
 [project.scripts]
 bugfinder = "bugfinder.cli:main"
 

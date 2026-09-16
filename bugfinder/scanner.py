@@ -5,7 +5,19 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-SKIP_DIRS = {".git", ".venv", "venv", "node_modules", "dist", "build", "vendor"}
+SKIP_DIRS = {
+    ".git",
+    ".venv",
+    "venv",
+    "node_modules",
+    "dist",
+    "build",
+    "vendor",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+}
 SOURCE_SUFFIXES = {".py", ".js", ".ts", ".tsx", ".jsx", ".java", ".go", ".rb", ".php", ".rs", ".c", ".cpp", ".h"}
 
 
@@ -30,10 +42,17 @@ RULES = [
 
 
 def source_files(root: Path, max_bytes: int = 200_000):
-    for path in root.rglob("*"):
+    for path in sorted(root.rglob("*")):
+        if path.is_symlink():
+            continue
         if not path.is_file() or path.suffix.lower() not in SOURCE_SUFFIXES:
             continue
-        if any(part in SKIP_DIRS for part in path.parts) or path.stat().st_size > max_bytes:
+        if any(part in SKIP_DIRS for part in path.parts):
+            continue
+        try:
+            if path.stat().st_size > max_bytes:
+                continue
+        except OSError:
             continue
         yield path
 
